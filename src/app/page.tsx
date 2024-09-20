@@ -1,10 +1,32 @@
-"use client"
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import { Lightbulb, LightbulbOutlined } from '@mui/icons-material';
+import mqtt from "mqtt";
 
 export default function Home() {
-  const [theme, setTheme] = useState<String>("light")
+  const [theme, setTheme] = useState("light");
+  const [isConnected, setIsConnected] = useState(false);
+  const client = mqtt.connect("ws://test.mosquitto.org:8080");
+
+  useEffect(() => {
+    client.on("connect", () => {
+      setIsConnected(true);
+      client.subscribe("UnoController", (err) => {
+        if (!err) {
+          console.log("Connected");
+        } else {
+          console.log(err);
+        }
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isConnected) {
+      client.publish("UnoController", theme === "light" ? "off" : "on");
+    }
+  }, [theme, isConnected]);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -13,9 +35,9 @@ export default function Home() {
         <Button 
           variant="contained" 
           onClick={() => setTheme(theme === "light" ? "dark" : "light")} 
-          startIcon={theme === "light" ? <LightbulbOutlined /> : <Lightbulb />}
+          startIcon={theme === "light" ?  <Lightbulb />: <LightbulbOutlined />}
         >
-          {theme === "light" ? "Acender" : "Apagar"}
+          {theme === "light" ? "Apagar" : "Acender"}
         </Button>
       </main>
     </div>
