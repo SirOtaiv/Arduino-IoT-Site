@@ -7,7 +7,7 @@ import mqtt from "mqtt";
 export default function Home() {
   const [theme, setTheme] = useState("light");
   const [isConnected, setIsConnected] = useState(false);
-  const client = mqtt.connect("ws://test.mosquitto.org:8080");
+  const client = mqtt.connect("wss://test.mosquitto.org:8081");
 
   useEffect(() => {
     client.on("connect", () => {
